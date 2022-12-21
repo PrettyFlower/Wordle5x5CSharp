@@ -2,8 +2,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using static System.Net.Mime.MediaTypeNames;
-using static Wordle5x5CSharp.Program;
+using System.Runtime.CompilerServices;
 
 namespace Wordle5x5CSharp
 {
@@ -60,7 +59,7 @@ namespace Wordle5x5CSharp
 
         public const string FREQUENCY_ALPHABET = "qxjzvfwbkgpmhdcytlnuroisea";
         public static int[] FrequencyAlphabet = new int[26];
-        public static HashSet<Word>[] Words = new HashSet<Word>[26];
+        public static List<Word>[] Words = new List<Word>[26];
 
         static void Main(string[] args)
         {
@@ -79,8 +78,9 @@ namespace Wordle5x5CSharp
             }
             for (int i = 0; i < Words.Length; i++)
             {
-                Words[i] = new HashSet<Word>(1024);
+                Words[i] = new List<Word>(1024);
             }
+            var wordHashes = new HashSet<int>(6000);
             using (var sr = new StreamReader(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\words_alpha.txt"))
             {
                 while (!sr.EndOfStream)
@@ -91,6 +91,9 @@ namespace Wordle5x5CSharp
                     var word = StrToBits(line);
                     if (word.bits == 0)
                         continue;
+                    if (wordHashes.Contains(word.bits))
+                        continue;
+                    wordHashes.Add(word.bits);
                     Words[word.bestLetter].Add(word);
                 }
             }
@@ -376,11 +379,13 @@ namespace Wordle5x5CSharp
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static int GetLetterBit(int letterIdx)
         {
             return FrequencyAlphabet[letterIdx];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static string ToBinary(int bits)
         {
             return Convert.ToString(bits, 2).PadLeft(26, '0');

@@ -64,16 +64,18 @@ namespace Wordle5x5CSharp
 
         static void Main(string[] args)
         {
-            Diff();
-            //CalculateSolutions();
+            //Diff();
+            CalculateSolutions();
         }
 
         static void CalculateSolutions()
         {
+            var totalSw = Stopwatch.StartNew();
+
             var sw = Stopwatch.StartNew();
             for (int i = 0; i < FREQUENCY_ALPHABET.Length; i++)
             {
-                FrequencyAlphabet[i] = GetLetterBit(i);
+                FrequencyAlphabet[i] = 1 << (FREQUENCY_ALPHABET[i] - 97);
             }
             for (int i = 0; i < Words.Length; i++)
             {
@@ -92,15 +94,43 @@ namespace Wordle5x5CSharp
                     Words[word.bestLetter].Add(word);
                 }
             }
+            sw.Stop();
+            Console.WriteLine($"Setup: {sw.ElapsedMilliseconds}");
+            
+            sw.Restart();
             var wordLists1 = AddFirstWordLists(0);
+            sw.Stop();
+            Console.WriteLine($"FirstWordLists: {sw.ElapsedMilliseconds}");
+            
+            sw.Restart();
             wordLists1 = AddSecondWordLists(wordLists1, 1);
+            sw.Stop();
+            Console.WriteLine($"SecondWordLists: {sw.ElapsedMilliseconds}");
+
+            sw.Restart();
             var wordLists2 = AddFirstWordLists(2);
+            sw.Stop();
+            Console.WriteLine($"FirstWordLists2: {sw.ElapsedMilliseconds}");
+
+            sw.Restart();
             wordLists2 = AddSecondWordLists(wordLists2, 3);
+            sw.Stop();
+            Console.WriteLine($"SecondWordLists2: {sw.ElapsedMilliseconds}");
+
+            sw.Restart();
             var wordLists = CombineWordLists(wordLists1, wordLists2);
+            sw.Stop();
+            Console.WriteLine($"CombineWordLists ({(wordLists1.Count * wordLists2.Count):n0}): {sw.ElapsedMilliseconds}");
+
             for (int i = 4; i < FREQUENCY_ALPHABET.Length; i++)
             {
+                sw.Restart();
                 wordLists = AddRemainingWordLists(wordLists, i);
+                sw.Stop();
+                Console.WriteLine($"RemainingWordLists {i} ({(wordLists.Count * Words[i].Count):n0}): {sw.ElapsedMilliseconds}");
             }
+
+            sw.Restart();
             using (var writer = new StreamWriter(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\results.txt"))
             {
                 foreach (var wordList in wordLists)
@@ -109,7 +139,10 @@ namespace Wordle5x5CSharp
                 }
             }
             sw.Stop();
-            Console.WriteLine($"Time: {sw.ElapsedMilliseconds}");
+            Console.WriteLine($"Final write: {sw.ElapsedMilliseconds}");
+
+            totalSw.Stop();
+            Console.WriteLine($"Total time: {totalSw.ElapsedMilliseconds}");
         }
 
         static Word StrToBits(string s)
@@ -200,9 +233,11 @@ namespace Wordle5x5CSharp
         static List<WordList> CombineWordLists(List<WordList> a, List<WordList> b)
         {
             var newWordLists = new List<WordList>();
-            foreach(var wordListA in a)
+            var aArr = a.ToArray();
+            var bArr = b.ToArray();
+            foreach(var wordListA in aArr)
             {
-                foreach(var wordListB in b)
+                foreach(var wordListB in bArr)
                 {
                     if ((wordListA.bits & wordListB.bits) > 0)
                         continue;
@@ -219,7 +254,7 @@ namespace Wordle5x5CSharp
                     Array.Copy(wordListB.words, 0, newWords, wordListA.numWords, wordListB.numWords);
                     var newWordList = new WordList
                     {
-                        bits = wordListA.bits | wordListB.bits,
+                        bits = allBits,
                         words = newWords,
                         numWords = wordListA.numWords + wordListB.numWords,
                         skips = 4 - numLetters
@@ -234,6 +269,7 @@ namespace Wordle5x5CSharp
         {
             var newWordLists = new List<WordList>();
             var letterBit = GetLetterBit(letterIdx);
+            var wordsArr = Words[letterIdx].ToArray();
             foreach (var wordList in wordLists)
             {
                 if ((wordList.bits & letterBit) > 0)
@@ -241,7 +277,7 @@ namespace Wordle5x5CSharp
                     newWordLists.Add(wordList);
                     continue;
                 }
-                foreach (var word in Words[letterIdx])
+                foreach(var word in wordsArr)
                 {
                     if ((wordList.bits & word.bits) > 0)
                         continue;
@@ -342,7 +378,7 @@ namespace Wordle5x5CSharp
 
         static int GetLetterBit(int letterIdx)
         {
-            return 1 << (FREQUENCY_ALPHABET[letterIdx] - 97);
+            return FrequencyAlphabet[letterIdx];
         }
 
         static string ToBinary(int bits)

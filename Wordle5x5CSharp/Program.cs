@@ -64,8 +64,8 @@ namespace Wordle5x5CSharp
 
         static void Main(string[] args)
         {
-            //Diff();
-            CalculateSolutions();
+            Diff();
+            //CalculateSolutions();
         }
 
         static void CalculateSolutions()
@@ -342,7 +342,7 @@ namespace Wordle5x5CSharp
 
         static int GetLetterBit(int letterIdx)
         {
-            return 1 << FREQUENCY_ALPHABET[letterIdx] - 97;
+            return 1 << (FREQUENCY_ALPHABET[letterIdx] - 97);
         }
 
         static string ToBinary(int bits)

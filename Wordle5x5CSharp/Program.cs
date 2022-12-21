@@ -73,7 +73,7 @@ namespace Wordle5x5CSharp
             var sw = Stopwatch.StartNew();
             for (int i = 0; i < FREQUENCY_ALPHABET.Length; i++)
             {
-                FrequencyAlphabet[i] = 1 << FREQUENCY_ALPHABET[i] - 97;
+                FrequencyAlphabet[i] = GetLetterBit(i);
             }
             for (int i = 0; i < Words.Length; i++)
             {
@@ -166,7 +166,7 @@ namespace Wordle5x5CSharp
                     bits = wordList.bits,
                     words = new Word[5] { wordList.words[0], null, null, null, null },
                     numWords = 1,
-                    skips = (wordList.bits & (1 << FREQUENCY_ALPHABET[letterIdx] - 97)) > 0 ? 0 : 1
+                    skips = (wordList.bits & GetLetterBit(letterIdx)) > 0 ? 0 : 1
                 };
                 newWordLists.Add(newWordList);
             }
@@ -208,10 +208,10 @@ namespace Wordle5x5CSharp
                         continue;
                     var allBits = wordListA.bits | wordListB.bits;
                     var numLetters = 0;
-                    if ((allBits & (1 << FREQUENCY_ALPHABET[0] - 97)) > 0) numLetters++;
-                    if ((allBits & (1 << FREQUENCY_ALPHABET[1] - 97)) > 0) numLetters++;
-                    if ((allBits & (1 << FREQUENCY_ALPHABET[2] - 97)) > 0) numLetters++;
-                    if ((allBits & (1 << FREQUENCY_ALPHABET[3] - 97)) > 0) numLetters++;
+                    numLetters += (allBits & GetLetterBit(0)) >> (FREQUENCY_ALPHABET[0] - 97);
+                    numLetters += (allBits & GetLetterBit(1)) >> (FREQUENCY_ALPHABET[1] - 97);
+                    numLetters += (allBits & GetLetterBit(2)) >> (FREQUENCY_ALPHABET[2] - 97);
+                    numLetters += (allBits & GetLetterBit(3)) >> (FREQUENCY_ALPHABET[3] - 97);
                     if (numLetters < 3)
                         continue;
                     var newWords = new Word[5];
@@ -233,7 +233,7 @@ namespace Wordle5x5CSharp
         static List<WordList> AddRemainingWordLists(List<WordList> wordLists, int letterIdx)
         {
             var newWordLists = new List<WordList>();
-            var letterBit = 1 << (FREQUENCY_ALPHABET[letterIdx] - 97);
+            var letterBit = GetLetterBit(letterIdx);
             foreach (var wordList in wordLists)
             {
                 if ((wordList.bits & letterBit) > 0)
@@ -338,6 +338,11 @@ namespace Wordle5x5CSharp
                     return false;
             }
             return true;
+        }
+
+        static int GetLetterBit(int letterIdx)
+        {
+            return 1 << FREQUENCY_ALPHABET[letterIdx] - 97;
         }
 
         static string ToBinary(int bits)

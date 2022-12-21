@@ -60,12 +60,12 @@ namespace Wordle5x5CSharp
 
         public const string FREQUENCY_ALPHABET = "qxjzvfwbkgpmhdcytlnuroisea";
         public static int[] FrequencyAlphabet = new int[26];
-        public static List<Word>[] Words = new List<Word>[26];
+        public static HashSet<Word>[] Words = new HashSet<Word>[26];
 
         static void Main(string[] args)
         {
-            Diff();
-            //CalculateSolutions();
+            //Diff();
+            CalculateSolutions();
         }
 
         static void CalculateSolutions()
@@ -77,7 +77,7 @@ namespace Wordle5x5CSharp
             }
             for (int i = 0; i < Words.Length; i++)
             {
-                Words[i] = new List<Word>(1024);
+                Words[i] = new HashSet<Word>(1024);
             }
             using (var sr = new StreamReader(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\words_alpha.txt"))
             {
@@ -92,9 +92,12 @@ namespace Wordle5x5CSharp
                     Words[word.bestLetter].Add(word);
                 }
             }
-            var wordLists = AddFirstWordLists();
-            wordLists = AddSecondWordLists(wordLists);
-            for (int i = 2; i < FREQUENCY_ALPHABET.Length; i++)
+            var wordLists1 = AddFirstWordLists(0);
+            wordLists1 = AddSecondWordLists(wordLists1, 1);
+            var wordLists2 = AddFirstWordLists(2);
+            wordLists2 = AddSecondWordLists(wordLists2, 3);
+            var wordLists = CombineWordLists(wordLists1, wordLists2);
+            for (int i = 4; i < FREQUENCY_ALPHABET.Length; i++)
             {
                 wordLists = AddRemainingWordLists(wordLists, i);
             }
@@ -136,10 +139,10 @@ namespace Wordle5x5CSharp
             return word;
         }
 
-        static List<WordList> AddFirstWordLists()
+        static List<WordList> AddFirstWordLists(int letterIdx)
         {
             var wordLists = new List<WordList>();
-            foreach (var word in Words[0])
+            foreach (var word in Words[letterIdx])
             {
                 var wordList = new WordList
                 {
@@ -153,7 +156,7 @@ namespace Wordle5x5CSharp
             return wordLists;
         }
 
-        static List<WordList> AddSecondWordLists(List<WordList> wordLists)
+        static List<WordList> AddSecondWordLists(List<WordList> wordLists, int letterIdx)
         {
             var newWordLists = new List<WordList>();
             foreach(var wordList in wordLists)
@@ -163,11 +166,11 @@ namespace Wordle5x5CSharp
                     bits = wordList.bits,
                     words = new Word[5] { wordList.words[0], null, null, null, null },
                     numWords = 1,
-                    skips = 1
+                    skips = (wordList.bits & (1 << FREQUENCY_ALPHABET[letterIdx] - 97)) > 0 ? 0 : 1
                 };
                 newWordLists.Add(newWordList);
             }
-            foreach (var word in Words[1])
+            foreach (var word in Words[letterIdx])
             {
                 foreach (var wordList in wordLists)
                 {
@@ -194,6 +197,39 @@ namespace Wordle5x5CSharp
             return newWordLists;
         }
 
+        static List<WordList> CombineWordLists(List<WordList> a, List<WordList> b)
+        {
+            var newWordLists = new List<WordList>();
+            foreach(var wordListA in a)
+            {
+                foreach(var wordListB in b)
+                {
+                    if ((wordListA.bits & wordListB.bits) > 0)
+                        continue;
+                    var allBits = wordListA.bits | wordListB.bits;
+                    var numLetters = 0;
+                    if ((allBits & (1 << FREQUENCY_ALPHABET[0] - 97)) > 0) numLetters++;
+                    if ((allBits & (1 << FREQUENCY_ALPHABET[1] - 97)) > 0) numLetters++;
+                    if ((allBits & (1 << FREQUENCY_ALPHABET[2] - 97)) > 0) numLetters++;
+                    if ((allBits & (1 << FREQUENCY_ALPHABET[3] - 97)) > 0) numLetters++;
+                    if (numLetters < 3)
+                        continue;
+                    var newWords = new Word[5];
+                    Array.Copy(wordListA.words, newWords, wordListA.numWords);
+                    Array.Copy(wordListB.words, 0, newWords, wordListA.numWords, wordListB.numWords);
+                    var newWordList = new WordList
+                    {
+                        bits = wordListA.bits | wordListB.bits,
+                        words = newWords,
+                        numWords = wordListA.numWords + wordListB.numWords,
+                        skips = 4 - numLetters
+                    };
+                    newWordLists.Add(newWordList);
+                }
+            }
+            return newWordLists;
+        }
+
         static List<WordList> AddRemainingWordLists(List<WordList> wordLists, int letterIdx)
         {
             var newWordLists = new List<WordList>();
@@ -210,7 +246,7 @@ namespace Wordle5x5CSharp
                     if ((wordList.bits & word.bits) > 0)
                         continue;
                     var newWords = new Word[5];
-                    Array.Copy(wordList.words, newWords, 5);
+                    Array.Copy(wordList.words, newWords, wordList.numWords);
                     newWords[wordList.numWords] = word;
                     var newWordList = new WordList
                     {
@@ -232,7 +268,7 @@ namespace Wordle5x5CSharp
         static void Diff()
         {
             var expected = new HashSet<string>();
-            using (var sr = new StreamReader(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\expected.txt"))
+            using (var sr = new StreamReader(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\results_no_anagrams.txt"))
             {
                 while (!sr.EndOfStream)
                 {

@@ -39,15 +39,7 @@ namespace Wordle5x5CSharp
 
         public bool StartsWith(string list)
         {
-            var split = list.Split(' ');
-            if (numWords < split.Length)
-                return false;
-            for (int i = 0; i < split.Length; i++)
-            {
-                if (words[i].text != split[i])
-                    return false;
-            }
-            return true;
+            return Util.StartsWith(words.Select(w => w.text).ToArray(), numWords, list);
         }
 
         public override string ToString()

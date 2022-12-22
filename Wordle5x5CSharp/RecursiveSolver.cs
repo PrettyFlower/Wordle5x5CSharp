@@ -14,7 +14,7 @@ namespace Wordle5x5CSharp
         public static void Solve()
         {
             var sw = Stopwatch.StartNew();
-            Solve(0, new string[5], 0, 0);
+            Solve(0, new string[5], 0, 0, 0);
             sw.Stop();
             Console.WriteLine($"Solve: {sw.ElapsedMilliseconds}");
 
@@ -30,9 +30,9 @@ namespace Wordle5x5CSharp
             Console.WriteLine($"Final write: {sw.ElapsedMilliseconds}");
         }
 
-        public static void Solve(int bits, string?[] wordsSoFar, int letterIdx, int numWords)
+        public static void Solve(int bits, string?[] wordsSoFar, int letterIdx, int numWords, int numSkips)
         {
-            if (numWords == 0 && letterIdx > 1)
+            if (numSkips == 2)
                 return;
 
             if (letterIdx == Util.Words.Length)
@@ -54,11 +54,15 @@ namespace Wordle5x5CSharp
                         continue;
                     wordsSoFar[numWords] = word.text;
                     var newBits = bits | word.bits;
-                    Solve(newBits, wordsSoFar, letterIdx + 1, numWords + 1);
+                    Solve(newBits, wordsSoFar, letterIdx + 1, numWords + 1, numSkips);
                     wordsSoFar[numWords] = null;
                 }
+                Solve(bits, wordsSoFar, letterIdx + 1, numWords, numSkips + 1);
             }
-            Solve(bits, wordsSoFar, letterIdx + 1, numWords);
+            else
+            {
+                Solve(bits, wordsSoFar, letterIdx + 1, numWords, numSkips);
+            }
         }
     }
 }

@@ -84,5 +84,18 @@ namespace Wordle5x5CSharp
             word.bestLetter = bestLetter;
             return word;
         }
+
+        public static bool StartsWith(string[] words, int numWords, string list)
+        {
+            var split = list.Split(' ');
+            if (numWords < split.Length)
+                return false;
+            for (int i = 0; i < split.Length; i++)
+            {
+                if (words[i] != split[i])
+                    return false;
+            }
+            return true;
+        }
     }
 }

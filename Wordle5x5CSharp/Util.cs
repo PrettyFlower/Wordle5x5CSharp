@@ -34,6 +34,7 @@ namespace Wordle5x5CSharp
         }*/
 
         public const string FREQUENCY_ALPHABET = "qxjzvfwbkgpmhdcytlnuroisea";
+        public const int SUBMASK_BUCKETS = 6;
         public static int[] FrequencyAlphabet = new int[26];
         //public static List<Word>[][] Words = new List<Word>[26][];
         public static List<string>[][] WordText = new List<string>[26][];
@@ -48,9 +49,9 @@ namespace Wordle5x5CSharp
             }
             for (int i = 0; i < WordText.Length; i++)
             {
-                WordText[i] = new List<string>[4];
-                WordBits[i] = new List<int>[4];
-                for(int j = 0; j < 4; j++)
+                WordText[i] = new List<string>[SUBMASK_BUCKETS];
+                WordBits[i] = new List<int>[SUBMASK_BUCKETS];
+                for(int j = 0; j < SUBMASK_BUCKETS; j++)
                 {
                     WordText[i][j] = new List<string>(500);
                     WordBits[i][j] = new List<int>(500);
@@ -70,10 +71,10 @@ namespace Wordle5x5CSharp
                     if (wordHashes.Contains(bits))
                         continue;
                     wordHashes.Add(bits);
-                    for(int i = 0; i < 4; i++)
+                    for(int i = 0; i < SUBMASK_BUCKETS; i++)
                     {
                         var submask = GetSubmask(i);
-                        if (i == 3 || (bits & submask) > 0)
+                        if (i == SUBMASK_BUCKETS - 1 || (bits & submask) > 0)
                         {
                             WordText[bestLetter][i].Add(line);
                             WordBits[bestLetter][i].Add(bits);

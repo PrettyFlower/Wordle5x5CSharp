@@ -52,10 +52,10 @@ namespace Wordle5x5CSharp
 
             if ((bits & Util.GetLetterBit(letterIdx)) == 0)
             {
-                for(int i = 0; i < 4; i++)
+                for(int i = 0; i < Util.SUBMASK_BUCKETS; i++)
                 {
                     var submask = Util.GetSubmask(i);
-                    if (i == 3 || (bits & submask) == 0)
+                    if (i == Util.SUBMASK_BUCKETS - 1 || (bits & submask) == 0)
                     {
                         var wordList = Util.WordBits[letterIdx][i];
                         for (int j = 0; j < wordList.Count; j++)

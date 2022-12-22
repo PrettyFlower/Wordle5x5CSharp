@@ -40,29 +40,23 @@ namespace Wordle5x5CSharp
             Console.WriteLine($"Setup: {sw.ElapsedMilliseconds}");
 
             sw.Restart();
-            var bytes = new byte[5_000_000];
-            var ms = new MemoryStream(bytes);
-            using(var fs = File.OpenRead(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\words_alpha.txt"))
-            {
-                fs.Read(bytes, 0, bytes.Length);
-            }
-            var fileText = Encoding.UTF8.GetString(bytes).ToCharArray();
+            var bytes = File.ReadAllBytes(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\words_alpha.txt");
             sw.Stop();
             Console.WriteLine($"Read file: {sw.ElapsedMilliseconds}");
 
             sw.Restart();
             var buffer = new char[5];
             char c;
-            for (int i = 0; i < fileText.Length; i++)
+            for (int i = 0; i < bytes.Length; i++)
             {
-                c = fileText[i];
+                c = (char)bytes[i];
                 if (c == '\0')
                     break;
                 buffer[0] = c;
                 var j = 1;
                 while (c != '\n')
                 {
-                    c = fileText[i + j];
+                    c = (char)bytes[i + j];
                     if (j < buffer.Length)
                         buffer[j] = c;
                     j++;

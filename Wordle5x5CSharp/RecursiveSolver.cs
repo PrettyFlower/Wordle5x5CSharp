@@ -19,7 +19,7 @@ namespace Wordle5x5CSharp
             Console.WriteLine($"Solve: {sw.ElapsedMilliseconds}");
 
             sw.Restart();
-            using (var writer = new StreamWriter(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\results.txt"))
+            using (var writer = new StreamWriter(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\results.txt", false))
             {
                 foreach (var solution in Solutions)
                 {
@@ -28,6 +28,7 @@ namespace Wordle5x5CSharp
             }
             sw.Stop();
             Console.WriteLine($"Final write: {sw.ElapsedMilliseconds}");
+            Solutions.Clear();
         }
 
         public static void Solve(int bits, Tuple<int, int, int>[] wordsSoFar, int letterIdx, int numWords, int numSkips)

@@ -33,18 +33,18 @@ namespace Wordle5x5CSharp
     public class WordList
     {
         public int bits;
-        public Word[] words;
+        public string[] words;
         public int numWords;
         public int skips;
 
         public bool StartsWith(string list)
         {
-            return Util.StartsWith(words.Select(w => w.text).ToArray(), numWords, list);
+            return Util.StartsWith(words, numWords, list);
         }
 
         public override string ToString()
         {
-            var wordsStr = string.Join(", ", words.Select(w => w?.text ?? "null"));
+            var wordsStr = string.Join(", ", words.Select(w => w ?? "null"));
             return $"{wordsStr} {Util.ToBinary(bits)}";
         }
     }
@@ -91,7 +91,7 @@ namespace Wordle5x5CSharp
             {
                 foreach (var wordList in wordLists)
                 {
-                    writer.WriteLine(string.Join(" ", wordList.words.Select(w => w.text)));
+                    writer.WriteLine(string.Join(" ", wordList.words));
                 }
             }
             sw.Stop();
@@ -106,7 +106,7 @@ namespace Wordle5x5CSharp
                 var wordList = new WordList
                 {
                     bits = word.bits,
-                    words = new Word[5] { word, null, null, null, null },
+                    words = new string[5] { word.text, null, null, null, null },
                     numWords = 1,
                     skips = 0
                 };
@@ -123,7 +123,7 @@ namespace Wordle5x5CSharp
                 var newWordList = new WordList
                 {
                     bits = wordList.bits,
-                    words = new Word[5] { wordList.words[0], null, null, null, null },
+                    words = new string[5] { wordList.words[0], null, null, null, null },
                     numWords = 1,
                     skips = (wordList.bits & Util.GetLetterBit(letterIdx)) > 0 ? 0 : 1
                 };
@@ -138,7 +138,7 @@ namespace Wordle5x5CSharp
                     var doubleWordList = new WordList
                     {
                         bits = wordList.bits | word.bits,
-                        words = new Word[5] { wordList.words[0], word, null, null, null },
+                        words = new string[5] { wordList.words[0], word.text, null, null, null },
                         numWords = 2,
                         skips = 0
                     };
@@ -147,7 +147,7 @@ namespace Wordle5x5CSharp
                 var newWordList = new WordList
                 {
                     bits = word.bits,
-                    words = new Word[5] { word, null, null, null, null },
+                    words = new string[5] { word.text, null, null, null, null },
                     numWords = 1,
                     skips = 1
                 };
@@ -175,7 +175,7 @@ namespace Wordle5x5CSharp
                     numLetters += (allBits & Util.GetLetterBit(3)) >> (Util.FREQUENCY_ALPHABET[3] - 97);
                     if (numLetters < 3)
                         continue;
-                    var newWords = new Word[5];
+                    var newWords = new string[5];
                     Array.Copy(wordListA.words, newWords, wordListA.numWords);
                     Array.Copy(wordListB.words, 0, newWords, wordListA.numWords, wordListB.numWords);
                     var newWordList = new WordList
@@ -207,9 +207,9 @@ namespace Wordle5x5CSharp
                 {
                     if ((wordList.bits & word.bits) > 0)
                         continue;
-                    var newWords = new Word[5];
+                    var newWords = new string[5];
                     Array.Copy(wordList.words, newWords, wordList.numWords);
-                    newWords[wordList.numWords] = word;
+                    newWords[wordList.numWords] = word.text;
                     var newWordList = new WordList
                     {
                         bits = wordList.bits | word.bits,

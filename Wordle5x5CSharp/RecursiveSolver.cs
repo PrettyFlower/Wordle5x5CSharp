@@ -35,7 +35,7 @@ namespace Wordle5x5CSharp
             if (numSkips == 2)
                 return;
 
-            if (letterIdx == Util.Words.Length)
+            if (letterIdx == Util.WordText.Length)
                 return;
 
             if(numWords == 5)
@@ -44,7 +44,7 @@ namespace Wordle5x5CSharp
                 for(int i = 0; i < 5; i++)
                 {
                     var tuple = wordsSoFar[i];
-                    solutionArr[i] = Util.Words[tuple.Item1][tuple.Item2][tuple.Item3].text;
+                    solutionArr[i] = Util.WordText[tuple.Item1][tuple.Item2][tuple.Item3];
                 }
                 Solutions.Add(solutionArr);
                 return;
@@ -52,19 +52,19 @@ namespace Wordle5x5CSharp
 
             if ((bits & Util.GetLetterBit(letterIdx)) == 0)
             {
-                for(int i = 0; i < 4; i++)
+                for(int i = 0; i < Util.SUBMASK_BUCKETS; i++)
                 {
                     var submask = Util.GetSubmask(i);
-                    if (i == 3 || (bits & submask) == 0)
+                    if (i == Util.SUBMASK_BUCKETS - 1 || (bits & submask) == 0)
                     {
-                        var wordList = Util.Words[letterIdx][i];
+                        var wordList = Util.WordBits[letterIdx][i];
                         for (int j = 0; j < wordList.Count; j++)
                         {
-                            var word = wordList[j];
-                            if ((word.bits & bits) > 0)
+                            var wordBits = wordList[j];
+                            if ((wordBits & bits) > 0)
                                 continue;
                             wordsSoFar[numWords] = Tuple.Create(letterIdx, i, j);
-                            var newBits = bits | word.bits;
+                            var newBits = bits | wordBits;
                             Solve(newBits, wordsSoFar, letterIdx + 1, numWords + 1, numSkips);
                         }
                     }

@@ -22,6 +22,7 @@ namespace Wordle5x5CSharp
                 RecursiveSolver.Solve();
                 totalSw.Stop();
                 Console.WriteLine($"Total time: {totalSw.ElapsedMilliseconds}");
+                Console.WriteLine();
                 total += totalSw.ElapsedMilliseconds;
                 if (totalSw.ElapsedMilliseconds < min)
                     min = totalSw.ElapsedMilliseconds;

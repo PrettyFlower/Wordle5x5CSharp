@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -58,33 +59,61 @@ namespace Wordle5x5CSharp
                 }
             }
             var wordHashes = new HashSet<int>(6000);
-            using (var sr = new StreamReader(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\words_alpha.txt"))
+            sw.Stop();
+            Console.WriteLine($"Setup: {sw.ElapsedMilliseconds}");
+
+            sw.Restart();
+            var bytes = new byte[5_000_000];
+            var ms = new MemoryStream(bytes);
+            using(var fs = File.OpenRead(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\words_alpha.txt"))
             {
-                while (!sr.EndOfStream)
+                fs.Read(bytes, 0, bytes.Length);
+            }
+            var fileText = Encoding.UTF8.GetString(bytes).ToCharArray();
+            sw.Stop();
+            Console.WriteLine($"Read file: {sw.ElapsedMilliseconds}");
+
+            sw.Restart();
+            var buffer = new char[5];
+            char c;
+            for (int i = 0; i < fileText.Length; i++)
+            {
+                c = fileText[i];
+                if (c == '\0')
+                    break;
+                buffer[0] = c;
+                var j = 1;
+                while (c != '\n')
                 {
-                    var line = sr.ReadLine();
-                    if (line.Length != 5)
-                        continue;
-                    var isValid = StrToBits(line, out var bits, out var bestLetter);
-                    if (!isValid)
-                        continue;
-                    if (wordHashes.Contains(bits))
-                        continue;
-                    wordHashes.Add(bits);
-                    for(int i = 0; i < SUBMASK_BUCKETS; i++)
+                    c = fileText[i + j];
+                    if (j < buffer.Length)
+                        buffer[j] = c;
+                    j++;
+                }
+                i += j - 1;
+                if (j != 7)
+                    continue;
+
+                var line = string.Create(5, buffer, (span, b) => buffer.CopyTo(span));
+                var isValid = StrToBits(line, out var bits, out var bestLetter);
+                if (!isValid)
+                    continue;
+                if (wordHashes.Contains(bits))
+                    continue;
+                wordHashes.Add(bits);
+                for(int k = 0; k < SUBMASK_BUCKETS; k++)
+                {
+                    var submask = GetSubmask(k);
+                    if (k == SUBMASK_BUCKETS - 1 || (bits & submask) > 0)
                     {
-                        var submask = GetSubmask(i);
-                        if (i == SUBMASK_BUCKETS - 1 || (bits & submask) > 0)
-                        {
-                            WordText[bestLetter][i].Add(line);
-                            WordBits[bestLetter][i].Add(bits);
-                            break;
-                        }
+                        WordText[bestLetter][k].Add(line);
+                        WordBits[bestLetter][k].Add(bits);
+                        break;
                     }
                 }
             }
             sw.Stop();
-            Console.WriteLine($"Setup: {sw.ElapsedMilliseconds}");
+            Console.WriteLine($"Parse file: {sw.ElapsedMilliseconds}");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -8,28 +8,6 @@ using System.Threading.Tasks;
 
 namespace Wordle5x5CSharp
 {
-    public class Word
-    {
-        public string text;
-        public int bits;
-        public int bestLetter;
-
-        public override int GetHashCode()
-        {
-            return bits;
-        }
-
-        public override bool Equals([NotNullWhen(true)] object? obj)
-        {
-            return bits == ((Word)obj).bits;
-        }
-
-        public override string ToString()
-        {
-            return $"{text} {Util.ToBinary(bits)} {bestLetter}";
-        }
-    }
-
     public class WordList
     {
         public int bits;

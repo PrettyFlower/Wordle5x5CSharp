@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -10,9 +11,33 @@ namespace Wordle5x5CSharp
 {
     public static class Util
     {
+        public class Word
+        {
+            public string text;
+            public int bits;
+            public int bestLetter;
+
+            public override int GetHashCode()
+            {
+                return bits;
+            }
+
+            public override bool Equals([NotNullWhen(true)] object? obj)
+            {
+                return bits == ((Word)obj).bits;
+            }
+
+            public override string ToString()
+            {
+                return $"{text} {Util.ToBinary(bits)} {bestLetter}";
+            }
+        }
+
         public const string FREQUENCY_ALPHABET = "qxjzvfwbkgpmhdcytlnuroisea";
         public static int[] FrequencyAlphabet = new int[26];
         public static List<Word>[] Words = new List<Word>[26];
+        public static List<string>[] WordText = new List<string>[26];
+        public static List<int>[] WordBits = new List<int>[26];
 
         public static void Load()
         {
@@ -24,6 +49,8 @@ namespace Wordle5x5CSharp
             for (int i = 0; i < Words.Length; i++)
             {
                 Words[i] = new List<Word>(1024);
+                WordText[i] = new List<string>(1024);
+                WordBits[i] = new List<int>(1024);
             }
             var wordHashes = new HashSet<int>(6000);
             using (var sr = new StreamReader(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\words_alpha.txt"))
@@ -40,6 +67,8 @@ namespace Wordle5x5CSharp
                         continue;
                     wordHashes.Add(word.bits);
                     Words[word.bestLetter].Add(word);
+                    WordText[word.bestLetter].Add(word.text);
+                    WordBits[word.bestLetter].Add(word.bits);
                 }
             }
             sw.Stop();

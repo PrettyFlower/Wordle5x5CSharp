@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Wordle5x5CSharp
 {
-    public class WordList
+    /*public class WordList
     {
         public int bits;
         public string[] words;
@@ -204,5 +204,5 @@ namespace Wordle5x5CSharp
             }
             return newWordLists;
         }
-    }
+    }*/
 }

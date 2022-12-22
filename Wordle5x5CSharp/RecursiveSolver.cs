@@ -14,7 +14,7 @@ namespace Wordle5x5CSharp
         public static void Solve()
         {
             var sw = Stopwatch.StartNew();
-            Solve(0, new Tuple<int, int>[5], 0, 0, 0);
+            Solve(0, new Tuple<int, int, int>[5], 0, 0, 0);
             sw.Stop();
             Console.WriteLine($"Solve: {sw.ElapsedMilliseconds}");
 
@@ -30,7 +30,7 @@ namespace Wordle5x5CSharp
             Console.WriteLine($"Final write: {sw.ElapsedMilliseconds}");
         }
 
-        public static void Solve(int bits, Tuple<int, int>[] wordsSoFar, int letterIdx, int numWords, int numSkips)
+        public static void Solve(int bits, Tuple<int, int, int>[] wordsSoFar, int letterIdx, int numWords, int numSkips)
         {
             if (numSkips == 2)
                 return;
@@ -44,7 +44,7 @@ namespace Wordle5x5CSharp
                 for(int i = 0; i < 5; i++)
                 {
                     var tuple = wordsSoFar[i];
-                    solutionArr[i] = Util.WordText[tuple.Item1][tuple.Item2];
+                    solutionArr[i] = Util.Words[tuple.Item1][tuple.Item2][tuple.Item3].text;
                 }
                 Solutions.Add(solutionArr);
                 return;
@@ -52,18 +52,22 @@ namespace Wordle5x5CSharp
 
             if ((bits & Util.GetLetterBit(letterIdx)) == 0)
             {
-                var wordTextList = Util.WordText[letterIdx];
-                var wordBitList = Util.WordBits[letterIdx];
-                for (int i = 0; i < wordTextList.Count; i++)
+                for(int i = 0; i < 4; i++)
                 {
-                    var word = wordTextList[i];
-                    var wordBits = wordBitList[i];
-                    if ((wordBits & bits) > 0)
-                        continue;
-                    wordsSoFar[numWords] = Tuple.Create(letterIdx, i);
-                    var newBits = bits | wordBits;
-                    Solve(newBits, wordsSoFar, letterIdx + 1, numWords + 1, numSkips);
-                    wordsSoFar[numWords] = null;
+                    var submask = Util.GetSubmask(i);
+                    if (i == 3 || (bits & submask) == 0)
+                    {
+                        var wordList = Util.Words[letterIdx][i];
+                        for (int j = 0; j < wordList.Count; j++)
+                        {
+                            var word = wordList[j];
+                            if ((word.bits & bits) > 0)
+                                continue;
+                            wordsSoFar[numWords] = Tuple.Create(letterIdx, i, j);
+                            var newBits = bits | word.bits;
+                            Solve(newBits, wordsSoFar, letterIdx + 1, numWords + 1, numSkips);
+                        }
+                    }
                 }
                 Solve(bits, wordsSoFar, letterIdx + 1, numWords, numSkips + 1);
             }

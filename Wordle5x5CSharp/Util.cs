@@ -35,9 +35,7 @@ namespace Wordle5x5CSharp
 
         public const string FREQUENCY_ALPHABET = "qxjzvfwbkgpmhdcytlnuroisea";
         public static int[] FrequencyAlphabet = new int[26];
-        public static List<Word>[] Words = new List<Word>[26];
-        public static List<string>[] WordText = new List<string>[26];
-        public static List<int>[] WordBits = new List<int>[26];
+        public static List<Word>[][] Words = new List<Word>[26][];
 
         public static void Load()
         {
@@ -48,9 +46,11 @@ namespace Wordle5x5CSharp
             }
             for (int i = 0; i < Words.Length; i++)
             {
-                Words[i] = new List<Word>(1024);
-                WordText[i] = new List<string>(1024);
-                WordBits[i] = new List<int>(1024);
+                Words[i] = new List<Word>[4];
+                for(int j = 0; j < 4; j++)
+                {
+                    Words[i][j] = new List<Word>(1024);
+                }
             }
             var wordHashes = new HashSet<int>(6000);
             using (var sr = new StreamReader(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\words_alpha.txt"))
@@ -66,9 +66,15 @@ namespace Wordle5x5CSharp
                     if (wordHashes.Contains(word.bits))
                         continue;
                     wordHashes.Add(word.bits);
-                    Words[word.bestLetter].Add(word);
-                    WordText[word.bestLetter].Add(word.text);
-                    WordBits[word.bestLetter].Add(word.bits);
+                    for(int i = 0; i < 4; i++)
+                    {
+                        var submask = GetSubmask(i);
+                        if ((word.bits & submask) > 0)
+                        {
+                            Words[word.bestLetter][i].Add(word);
+                            break;
+                        }
+                    }
                 }
             }
             sw.Stop();
@@ -125,6 +131,14 @@ namespace Wordle5x5CSharp
                     return false;
             }
             return true;
+        }
+
+        public static int GetSubmask(int i)
+        {
+            if(i < 3)
+                return GetLetterBit(FREQUENCY_ALPHABET.Length - i - 1);
+            var maxMask = GetLetterBit(FREQUENCY_ALPHABET.Length - 1) | GetLetterBit(FREQUENCY_ALPHABET.Length - 2) | GetLetterBit(FREQUENCY_ALPHABET.Length - 3);
+            return 0b11111111111111111111111111 ^ maxMask;
         }
     }
 }

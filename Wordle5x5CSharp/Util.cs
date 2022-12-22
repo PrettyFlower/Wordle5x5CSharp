@@ -11,7 +11,7 @@ namespace Wordle5x5CSharp
 {
     public static class Util
     {
-        public class Word
+        /*public class Word
         {
             public string text;
             public int bits;
@@ -31,11 +31,13 @@ namespace Wordle5x5CSharp
             {
                 return $"{text} {Util.ToBinary(bits)} {bestLetter}";
             }
-        }
+        }*/
 
         public const string FREQUENCY_ALPHABET = "qxjzvfwbkgpmhdcytlnuroisea";
         public static int[] FrequencyAlphabet = new int[26];
-        public static List<Word>[][] Words = new List<Word>[26][];
+        //public static List<Word>[][] Words = new List<Word>[26][];
+        public static List<string>[][] WordText = new List<string>[26][];
+        public static List<int>[][] WordBits = new List<int>[26][];
 
         public static void Load()
         {
@@ -44,12 +46,14 @@ namespace Wordle5x5CSharp
             {
                 FrequencyAlphabet[i] = 1 << (FREQUENCY_ALPHABET[i] - 97);
             }
-            for (int i = 0; i < Words.Length; i++)
+            for (int i = 0; i < WordText.Length; i++)
             {
-                Words[i] = new List<Word>[4];
+                WordText[i] = new List<string>[4];
+                WordBits[i] = new List<int>[4];
                 for(int j = 0; j < 4; j++)
                 {
-                    Words[i][j] = new List<Word>(1024);
+                    WordText[i][j] = new List<string>(500);
+                    WordBits[i][j] = new List<int>(500);
                 }
             }
             var wordHashes = new HashSet<int>(6000);
@@ -60,18 +64,19 @@ namespace Wordle5x5CSharp
                     var line = sr.ReadLine();
                     if (line.Length != 5)
                         continue;
-                    var word = StrToBits(line);
-                    if (word.bits == 0)
+                    var isValid = StrToBits(line, out var bits, out var bestLetter);
+                    if (!isValid)
                         continue;
-                    if (wordHashes.Contains(word.bits))
+                    if (wordHashes.Contains(bits))
                         continue;
-                    wordHashes.Add(word.bits);
+                    wordHashes.Add(bits);
                     for(int i = 0; i < 4; i++)
                     {
                         var submask = GetSubmask(i);
-                        if (i == 3 || (word.bits & submask) > 0)
+                        if (i == 3 || (bits & submask) > 0)
                         {
-                            Words[word.bestLetter][i].Add(word);
+                            WordText[bestLetter][i].Add(line);
+                            WordBits[bestLetter][i].Add(bits);
                             break;
                         }
                     }
@@ -93,17 +98,16 @@ namespace Wordle5x5CSharp
             return Convert.ToString(bits, 2).PadLeft(26, '0');
         }
 
-        public static Word StrToBits(string s)
+        public static bool StrToBits(string s, out int bits, out int bestLetter)
         {
-            var word = new Word();
-            int bits = 0;
-            int bestLetter = 0;
+            bits = 0;
+            bestLetter = 0;
             for (int i = 0; i < s.Length; i++)
             {
                 var bitOffset = s[i] - 97;
                 var bit = 1 << bitOffset;
                 if ((bits & bit) > 0)
-                    return word;
+                    return false;
                 bits |= bit;
             }
             for (int i = 0; i < FrequencyAlphabet.Length; i++)
@@ -114,10 +118,7 @@ namespace Wordle5x5CSharp
                     break;
                 }
             }
-            word.text = s;
-            word.bits = bits;
-            word.bestLetter = bestLetter;
-            return word;
+            return true;
         }
 
         public static bool StartsWith(string[] words, int numWords, string list)

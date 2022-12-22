@@ -16,7 +16,7 @@ The number of iterations can be specified as a command line argument (default is
 dotnet bin/Release/net6.0/Wordle5x5CSharp.dll 5
 ```
 
-On my own PC, I'm getting results around here:
+On my own PC, I'm getting results around here (times are measured in milliseconds):
 ```
 Average: 36, min: 33, max: 47
 ```

@@ -13,8 +13,11 @@ namespace Wordle5x5CSharp
             //Diff.Check();
             //return;
 
+            var iterations = 10;
+            if (args.Length > 0)
+                iterations = int.Parse(args[0]);
             long min = long.MaxValue, max = 0, total = 0;
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < iterations; i++)
             {
                 var totalSw = Stopwatch.StartNew();
                 Util.Load();
@@ -29,7 +32,7 @@ namespace Wordle5x5CSharp
                 if (totalSw.ElapsedMilliseconds > max)
                     max = totalSw.ElapsedMilliseconds;
             }
-            Console.WriteLine($"Average: {total / 10}, min: {min}, max: {max}");
+            Console.WriteLine($"Average: {total / iterations}, min: {min}, max: {max}");
         }
     }
 }

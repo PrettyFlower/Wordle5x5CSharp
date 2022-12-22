@@ -12,32 +12,9 @@ namespace Wordle5x5CSharp
 {
     public static class Util
     {
-        /*public class Word
-        {
-            public string text;
-            public int bits;
-            public int bestLetter;
-
-            public override int GetHashCode()
-            {
-                return bits;
-            }
-
-            public override bool Equals([NotNullWhen(true)] object? obj)
-            {
-                return bits == ((Word)obj).bits;
-            }
-
-            public override string ToString()
-            {
-                return $"{text} {Util.ToBinary(bits)} {bestLetter}";
-            }
-        }*/
-
         public const string FREQUENCY_ALPHABET = "qxjzvfwbkgpmhdcytlnuroisea";
         public const int SUBMASK_BUCKETS = 6;
         public static int[] FrequencyAlphabet = new int[26];
-        //public static List<Word>[][] Words = new List<Word>[26][];
         public static List<string>[][] WordText = new List<string>[26][];
         public static List<int>[][] WordBits = new List<int>[26][];
 

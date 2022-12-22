@@ -69,7 +69,7 @@ namespace Wordle5x5CSharp
                     for(int i = 0; i < 4; i++)
                     {
                         var submask = GetSubmask(i);
-                        if ((word.bits & submask) > 0)
+                        if (i == 3 || (word.bits & submask) > 0)
                         {
                             Words[word.bestLetter][i].Add(word);
                             break;
@@ -135,10 +135,7 @@ namespace Wordle5x5CSharp
 
         public static int GetSubmask(int i)
         {
-            if(i < 3)
-                return GetLetterBit(FREQUENCY_ALPHABET.Length - i - 1);
-            var maxMask = GetLetterBit(FREQUENCY_ALPHABET.Length - 1) | GetLetterBit(FREQUENCY_ALPHABET.Length - 2) | GetLetterBit(FREQUENCY_ALPHABET.Length - 3);
-            return 0b11111111111111111111111111 ^ maxMask;
+            return GetLetterBit(FREQUENCY_ALPHABET.Length - i - 1);
         }
     }
 }

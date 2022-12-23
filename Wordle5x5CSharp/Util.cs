@@ -46,23 +46,20 @@ namespace Wordle5x5CSharp
 
             sw.Restart();
             var buffer = new char[5];
-            char c;
-            for (int i = 0; i < bytes.Length; i++)
+            int fileIdx = 0;
+            char c = (char)bytes[fileIdx];
+            while (fileIdx < bytes.Length)
             {
-                c = (char)bytes[i];
-                if (c == '\0')
-                    break;
-                buffer[0] = c;
-                var j = 1;
-                while (c != '\n')
+                var lineIdx = 0;
+                do
                 {
-                    c = (char)bytes[i + j];
-                    if (j < buffer.Length)
-                        buffer[j] = c;
-                    j++;
-                }
-                i += j - 1;
-                if (j != 7)
+                    c = (char)bytes[fileIdx + lineIdx];
+                    if (lineIdx < buffer.Length)
+                        buffer[lineIdx] = c;
+                    lineIdx++;
+                } while (c != '\n');
+                fileIdx += lineIdx;
+                if (lineIdx != 7)
                     continue;
 
                 var line = string.Create(5, buffer, (span, b) => buffer.CopyTo(span));

@@ -39,6 +39,8 @@ namespace Wordle5x5CSharp
             sw.Stop();
             Console.WriteLine($"Setup: {sw.ElapsedMilliseconds}");
 
+            // it is a bit faster to read the whole file in as an array of bytes and parse it manually
+            // so that's why we're doing this crazyness
             sw.Restart();
             var bytes = File.ReadAllBytes(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\words_alpha.txt");
             sw.Stop();

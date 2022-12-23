@@ -18,7 +18,7 @@ dotnet bin/Release/net6.0/Wordle5x5CSharp.dll 5
 
 On my own PC, I'm getting results around here (times are measured in milliseconds):
 ```
-Average: 36, min: 33, max: 47
+Average: 28, min: 26, max: 42
 ```
 
 This implementation just steals a bunch of good ideas from other smarter people and doesn't really have any creative ideas of its own. I just wanted to see how a C# version would compare. You can take a look at this spreadsheet here to see how other people solved it: https://docs.google.com/spreadsheets/d/11sUBkPSEhbGx2K8ah6WbGV62P8ii5l5vVeMpkzk17PI/edit#gid=0 At a high level, this code is probably closest to this Java version: https://github.com/Plexcalibur/5Words25Letters The optimizations used in this implementation are:

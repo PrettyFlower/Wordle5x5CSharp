@@ -13,7 +13,7 @@ namespace Wordle5x5CSharp
             //Diff.Check();
             //return;
 
-            var iterations = 1;
+            var iterations = 10;
             if (args.Length > 0)
                 iterations = int.Parse(args[0]);
             long min = long.MaxValue, max = 0, total = 0;
@@ -21,8 +21,8 @@ namespace Wordle5x5CSharp
             {
                 var totalSw = Stopwatch.StartNew();
                 Util.Load();
-                WordListSolver.Solve();
-                //RecursiveSolver.Solve();
+                //WordListSolver.Solve();
+                RecursiveSolver.Solve();
                 totalSw.Stop();
                 Console.WriteLine($"Total time: {totalSw.ElapsedMilliseconds}");
                 Console.WriteLine();

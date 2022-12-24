@@ -9,20 +9,44 @@ namespace Wordle5x5CSharp
 {
     public static class RecursiveSolver
     {
-        public static List<int[]> Solutions = new List<int[]>();
+        public static int[][] Solutions = new int[10000][];
+        public static int SolutionCount = -1;
 
         public static void Solve()
         {
+            SolutionCount = -1;
+            for(int i = 0; i < 1000; i++)
+            {
+                Solutions[i] = new int[5];
+            }
+
             var sw = Stopwatch.StartNew();
-            Solve(0, new int[5], 0, 0, 0);
+            //var firstIndexWords = Util.LetterIndex[0].Sum(sl => sl.Count);
+            //var numParallelWords = firstIndexWords + Util.LetterIndex[1].Sum(sl => sl.Count);
+            var firstWords = Util.LetterIndex[0].SelectMany(sl => sl).ToList();
+            var secondWords = Util.LetterIndex[1].SelectMany(sl => sl).ToList();
+            var startingWords = firstWords.Concat(secondWords).ToList();
+            sw.Stop();
+            Console.WriteLine($"Generate starting words: {sw.ElapsedMilliseconds}");
+
+            sw.Restart();
+            Parallel.ForEach(startingWords, (wordInfo, state, idx) =>
+            {
+                var isFirstWord = idx < firstWords.Count;
+                var letterIdx = isFirstWord ? 1 : 2;
+                var numSkips = isFirstWord ? 0 : 1;
+                var arr = new int[5] { wordInfo.Idx, 0, 0, 0, 0 };
+                Solve(wordInfo.Bits, arr, letterIdx, 1, numSkips);
+            });
             sw.Stop();
             Console.WriteLine($"Solve: {sw.ElapsedMilliseconds}");
 
             sw.Restart();
             using (var writer = new StreamWriter(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\results.txt", false))
             {
-                foreach (var solution in Solutions)
+                for(int i = 0; i <= SolutionCount; i++)
                 {
+                    var solution = Solutions[i];
                     foreach(var wordIdx in solution)
                     {
                         var wordText = Util.WordIdxsToText[wordIdx];
@@ -33,7 +57,6 @@ namespace Wordle5x5CSharp
             }
             sw.Stop();
             Console.WriteLine($"Final write: {sw.ElapsedMilliseconds}");
-            Solutions.Clear();
         }
 
         public static void Solve(int bits, int[] wordsSoFar, int letterIdx, int numWords, int numSkips)
@@ -46,9 +69,10 @@ namespace Wordle5x5CSharp
 
             if(numWords == 5)
             {
+                int solutionCount = Interlocked.Increment(ref SolutionCount);
                 var solutionArr = new int[5];
                 Array.Copy(wordsSoFar, solutionArr, solutionArr.Length);
-                Solutions.Add(solutionArr);
+                Solutions[solutionCount] = solutionArr;
                 return;
             }
 

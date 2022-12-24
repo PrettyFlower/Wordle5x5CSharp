@@ -21,8 +21,8 @@ namespace Wordle5x5CSharp
             {
                 var totalSw = Stopwatch.StartNew();
                 Util.Load();
-                WordListSolver.Solve();
-                //RecursiveSolver.Solve();
+                //WordListSolver.Solve();
+                RecursiveSolver.Solve();
                 totalSw.Stop();
                 Console.WriteLine($"Total time: {totalSw.ElapsedMilliseconds}");
                 Console.WriteLine();

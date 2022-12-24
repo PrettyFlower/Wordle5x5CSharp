@@ -25,7 +25,7 @@ namespace Wordle5x5CSharp
             {
                 while (!sr.EndOfStream)
                 {
-                    var line = sr.ReadLine();
+                    var line = sr.ReadLine().Trim();
                     results.Add(line);
                 }
             }

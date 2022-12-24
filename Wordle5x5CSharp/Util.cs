@@ -12,27 +12,33 @@ namespace Wordle5x5CSharp
 {
     public static class Util
     {
+        [StructLayout(LayoutKind.Sequential, Size = 8)]
+        public struct WordInfo
+        {
+            public int Idx;
+            public int Bits;
+        }
+
         public const string FREQUENCY_ALPHABET = "qxjzvfwbkgpmhdcytlnuroisea";
         public const int SUBMASK_BUCKETS = 6;
         public static int[] FrequencyAlphabet = new int[26];
-        public static List<string>[][] WordText = new List<string>[26][];
-        public static List<int>[][] WordBits = new List<int>[26][];
+        public static List<string> WordIdxsToText = new List<string>();
+        public static List<WordInfo>[][] LetterIndex = new List<WordInfo>[26][];
 
         public static void Load()
         {
             var sw = Stopwatch.StartNew();
+            WordIdxsToText.Clear();
             for (int i = 0; i < FREQUENCY_ALPHABET.Length; i++)
             {
                 FrequencyAlphabet[i] = 1 << (FREQUENCY_ALPHABET[i] - 97);
             }
-            for (int i = 0; i < WordText.Length; i++)
+            for (int i = 0; i < LetterIndex.Length; i++)
             {
-                WordText[i] = new List<string>[SUBMASK_BUCKETS];
-                WordBits[i] = new List<int>[SUBMASK_BUCKETS];
+                LetterIndex[i] = new List<WordInfo>[SUBMASK_BUCKETS];
                 for(int j = 0; j < SUBMASK_BUCKETS; j++)
                 {
-                    WordText[i][j] = new List<string>(500);
-                    WordBits[i][j] = new List<int>(500);
+                    LetterIndex[i][j] = new List<WordInfo>(500);
                 }
             }
             var wordHashes = new HashSet<int>(6000);
@@ -71,13 +77,15 @@ namespace Wordle5x5CSharp
                 if (wordHashes.Contains(bits))
                     continue;
                 wordHashes.Add(bits);
-                for(int k = 0; k < SUBMASK_BUCKETS; k++)
+                for(int bucket = 0; bucket < SUBMASK_BUCKETS; bucket++)
                 {
-                    var submask = GetSubmask(k);
-                    if (k == SUBMASK_BUCKETS - 1 || (bits & submask) > 0)
+                    var submask = GetSubmask(bucket);
+                    if (bucket == SUBMASK_BUCKETS - 1 || (bits & submask) > 0)
                     {
-                        WordText[bestLetter][k].Add(line);
-                        WordBits[bestLetter][k].Add(bits);
+                        var wordIdx = WordIdxsToText.Count;
+                        WordIdxsToText.Add(line);
+                        var wordInfo = new WordInfo { Idx = wordIdx, Bits = bits };
+                        LetterIndex[bestLetter][bucket].Add(wordInfo);
                         break;
                     }
                 }

@@ -17,6 +17,11 @@ namespace Wordle5x5CSharp
         {
             public int Idx;
             public int Bits;
+
+            public override string ToString()
+            {
+                return WordIdxToText(Idx);
+            }
         }
 
         public const string FREQUENCY_ALPHABET = "qxjzvfwbkgpmhdcytlnuroisea";
@@ -129,14 +134,15 @@ namespace Wordle5x5CSharp
             return true;
         }
 
-        public static bool StartsWith(string[] words, int numWords, string list)
+        public static bool StartsWith(int[] words, int numWords, string list)
         {
             var split = list.Split(' ');
             if (numWords < split.Length)
                 return false;
             for (int i = 0; i < split.Length; i++)
             {
-                if (words[i] != split[i])
+                var wordText = Util.WordIdxToText(words[i]);
+                if (wordText != split[i])
                     return false;
             }
             return true;
@@ -145,6 +151,13 @@ namespace Wordle5x5CSharp
         public static int GetSubmask(int i)
         {
             return GetLetterBit(FREQUENCY_ALPHABET.Length - i - 1);
+        }
+
+        public static string WordIdxToText(int wordIdx)
+        {
+            if (wordIdx < 0)
+                return "null";
+            return WordIdxsToText[wordIdx];
         }
     }
 }

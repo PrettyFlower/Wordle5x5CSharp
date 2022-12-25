@@ -21,7 +21,7 @@ On my own PC, I'm getting results around here (times are measured in millisecond
 Average: 28, min: 26, max: 42
 ```
 
-!!! IMPORTANT !!!
+!!! IMPORTANT !!!  
 When testing single iteration passes with hyperfine, you may get misleading results as this doesn't give .NET enough time to use JIT optimizations. For better results, please run:
 ```
 dotnet publish -r <RID> -c Release

@@ -24,11 +24,29 @@ namespace Wordle5x5CSharp
             }
         }
 
+        public static string INPUT_FILE;
+        public static string OUTPUT_FILE;
+        public static int LINE_LENGTH;
         public const string FREQUENCY_ALPHABET = "qxjzvfwbkgpmhdcytlnuroisea";
         public const int SUBMASK_BUCKETS = 6;
         public static int[] FrequencyAlphabet = new int[26];
         public static List<string> WordIdxsToText = new List<string>();
         public static List<WordInfo>[][] LetterIndex = new List<WordInfo>[26][];
+
+        static Util() {
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                INPUT_FILE = @"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\words_alpha.txt";
+                OUTPUT_FILE = @"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\results.txt";
+                LINE_LENGTH = 7;
+            }
+            else
+            {
+                INPUT_FILE = @"/home/prettyflower/code/Wordle5x5CSharp/Wordle5x5CSharp/words_alpha.txt";
+                OUTPUT_FILE = @"/home/prettyflower/code/Wordle5x5CSharp/Wordle5x5CSharp/results.txt";
+                LINE_LENGTH = 6;
+            }
+        }
 
         public static void Load()
         {
@@ -53,7 +71,7 @@ namespace Wordle5x5CSharp
             // it is a bit faster to read the whole file in as an array of bytes and parse it manually
             // so that's why we're doing this crazyness
             sw.Restart();
-            var bytes = File.ReadAllBytes(@"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\words_alpha.txt");
+            var bytes = File.ReadAllBytes(INPUT_FILE);
             sw.Stop();
             Console.WriteLine($"Read file: {sw.ElapsedMilliseconds}");
 
@@ -72,7 +90,7 @@ namespace Wordle5x5CSharp
                     lineIdx++;
                 } while (c != '\n');
                 fileIdx += lineIdx;
-                if (lineIdx != 7)
+                if (lineIdx != LINE_LENGTH)
                     continue;
 
                 var line = string.Create(5, buffer, (span, b) => buffer.CopyTo(span));

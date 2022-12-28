@@ -17,6 +17,8 @@ hyperfine bin/Release/net7.0/win-x64/publish/Wordle5x5CSharp.exe
 !!! IMPORTANT !!!  
 Don't just run `dotnet build --configuration Release`! Because the benchmark only tests a single iteration, this does not give .NET enough time to apply JIT optimizations so we need to use ahead-of-time compiliation to get decent results. This makes an almost 5x performance difference on my own PC. For more information, see here: https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/
 
+One other strange performance quirk I've noticed is that when running on Linux in a VM on VirtualBox, there is a noticeable slowdown based on the size of the console window. For best results, please switch to a console only TTY if running on Linux (`ctrl + alt + F3` on Ubuntu).
+
 This implementation just steals a bunch of good ideas from other smarter people and doesn't really have any creative ideas of its own. I just wanted to see how a C# version would compare. You can take a look at this spreadsheet here to see how other people solved it: https://docs.google.com/spreadsheets/d/11sUBkPSEhbGx2K8ah6WbGV62P8ii5l5vVeMpkzk17PI/edit#gid=0 At a high level, this code is probably closest to this Java version: https://github.com/Plexcalibur/5Words25Letters The optimizations used in this implementation are:
 - [ ] Graph representation
 - [x] Bitwise word representation

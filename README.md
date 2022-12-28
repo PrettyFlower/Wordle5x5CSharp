@@ -1,35 +1,20 @@
 If you somehow got here and have no idea what's going on, it all started with this video from stand-up maths: https://www.youtube.com/watch?v=c33AZBnRHks&ab_channel=Stand-upMaths
 
 To build:
+1. Update the file paths in Util.cs
+2. Run the following where `<root>` is the root path of the repo and `<RID>` is your platform (e.g. win-x64, linux-x64).
 ```
 cd <root>/Wordle5x5CSharp
-dotnet build --configuration Release
-```
-
-To run:
-```
-dotnet bin\Release\net6.0\Wordle5x5CSharp.dll
-```
-
-The number of iterations can be specified as a command line argument (default is 10):
-```
-dotnet bin/Release/net6.0/Wordle5x5CSharp.dll 5
-```
-
-On my own PC, I'm getting results around here (times are measured in milliseconds):
-```
-Average: 28, min: 26, max: 42
-```
-
-!!! IMPORTANT !!!  
-When testing single iteration passes with hyperfine, you may get misleading results as this doesn't give .NET enough time to use JIT optimizations. For better results, please run:
-```
 dotnet publish -r <RID> -c Release
 ```
-Where `<RID>` is your platform (e.g. win-x64, linux-x64). This will allow for the JIT optimizations to be baked into the application and can result in a nearly 2x performance improvement. Then run the compiled executable in the publish directory (different from the bin directory above):
+
+To test, make sure you use the generated code in the publish folder! Assuming you are using hyperfine, run:
 ```
 hyperfine bin/Release/net7.0/win-x64/publish/Wordle5x5CSharp.exe
 ```
+
+!!! IMPORTANT !!!  
+Don't just run `dotnet build --configuration Release`! Because the benchmark only tests a single iteration, this does not give .NET enough time to apply JIT optimizations, so we need to use ahead-of-time compiliation to get decent results. This makes an almost 5x performance difference on my own PC.
 
 For more information, see here: https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/
 

@@ -13,7 +13,7 @@ namespace Wordle5x5CSharp
             //Diff.Check();
             //return;
 
-            var iterations = 10;
+            var iterations = 1;
             if (args.Length > 0)
                 iterations = int.Parse(args[0]);
             long min = long.MaxValue, max = 0, total = 0;

@@ -21,6 +21,18 @@ On my own PC, I'm getting results around here (times are measured in millisecond
 Average: 28, min: 26, max: 42
 ```
 
+!!! IMPORTANT !!!  
+When testing single iteration passes with hyperfine, you may get misleading results as this doesn't give .NET enough time to use JIT optimizations. For better results, please run:
+```
+dotnet publish -r <RID> -c Release
+```
+Where `<RID>` is your platform (e.g. win-x64, linux-x64). This will allow for the JIT optimizations to be baked into the application and can result in a nearly 2x performance improvement. Then run the compiled executable in the publish directory (different from the bin directory above):
+```
+hyperfine bin/Release/net7.0/win-x64/publish/Wordle5x5CSharp.exe
+```
+
+For more information, see here: https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/
+
 This implementation just steals a bunch of good ideas from other smarter people and doesn't really have any creative ideas of its own. I just wanted to see how a C# version would compare. You can take a look at this spreadsheet here to see how other people solved it: https://docs.google.com/spreadsheets/d/11sUBkPSEhbGx2K8ah6WbGV62P8ii5l5vVeMpkzk17PI/edit#gid=0 At a high level, this code is probably closest to this Java version: https://github.com/Plexcalibur/5Words25Letters The optimizations used in this implementation are:
 - [ ] Graph representation
 - [x] Bitwise word representation

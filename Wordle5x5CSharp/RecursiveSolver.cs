@@ -56,7 +56,7 @@ namespace Wordle5x5CSharp
                 }
             }
             sw.Stop();
-            Console.WriteLine($"Final write: {sw.ElapsedMilliseconds}, num solutions: {Solutions.Length}");
+            Console.WriteLine($"Final write: {sw.ElapsedMilliseconds}, num solutions: {SolutionCount}");
         }
 
         public static void Solve(int bits, int[] wordsSoFar, int letterIdx, int numWords, int numSkips)

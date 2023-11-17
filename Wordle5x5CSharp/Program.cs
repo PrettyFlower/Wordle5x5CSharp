@@ -10,6 +10,8 @@ namespace Wordle5x5CSharp
     {
         static void Main(string[] args)
         {
+            //LetterFrequency.Find();
+            //return;
             //Diff.Check();
             //return;
 

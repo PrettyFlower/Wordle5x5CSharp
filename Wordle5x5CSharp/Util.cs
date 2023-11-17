@@ -38,13 +38,11 @@ namespace Wordle5x5CSharp
             {
                 INPUT_FILE = @"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\words_alpha.txt";
                 OUTPUT_FILE = @"C:\code\Wordle5x5CSharp\Wordle5x5CSharp\results.txt";
-                LINE_LENGTH = 7;
             }
             else
             {
                 INPUT_FILE = @"/home/prettyflower/code/Wordle5x5CSharp/Wordle5x5CSharp/words_alpha.txt";
                 OUTPUT_FILE = @"/home/prettyflower/code/Wordle5x5CSharp/Wordle5x5CSharp/results.txt";
-                LINE_LENGTH = 6;
             }
         }
 
@@ -79,6 +77,18 @@ namespace Wordle5x5CSharp
             var buffer = new char[5];
             int fileIdx = 0;
             char c = (char)bytes[fileIdx];
+
+            // figure out what our line endings are (issue #1)
+            LINE_LENGTH = 6;
+            do
+            {
+                c = (char)bytes[fileIdx];
+                if (c == '\r')
+                    LINE_LENGTH++;
+                fileIdx++;
+            } while (c != '\n');
+            fileIdx = 0;
+
             while (fileIdx < bytes.Length)
             {
                 var lineIdx = 0;
